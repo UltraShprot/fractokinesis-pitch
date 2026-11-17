@@ -2,7 +2,11 @@
 (function () {
   // ?heroh=900 — высота первого экрана для проверочных снимков во всю страницу (там окно высотой со страницу)
   const hh = new URLSearchParams(location.search).get('heroh'); if (hh) document.documentElement.style.setProperty('--heroH', hh + 'px');
+  // небо во всю высоту документа и перерисовка, когда раскладка устоялась (шрифты, картинки)
+  const sky = document.querySelector('canvas.sky');
+  const fitSky = () => { if (!sky) return; sky.style.height = '0px'; sky.style.height = document.documentElement.scrollHeight + 'px'; if (window.PX_SKY) window.PX_SKY(sky); };
   if (window.PX_START) window.PX_START();
+  fitSky(); addEventListener('load', fitSky); let rs = 0; addEventListener('resize', () => { clearTimeout(rs); rs = setTimeout(fitSky, 200); });
   // логотип меню игры: 12 кадров в ленте, 9 к/с
   let f = 0;
   setInterval(() => { f = (f + 1) % 12; document.querySelectorAll('.logosite').forEach((el) => { el.style.backgroundPositionY = (f * 100 / 11) + '%'; }); }, 1000 / 9);

@@ -141,7 +141,7 @@
     const neb = [['130,60,210', 0.25, 0.3], ['212,24,61', 0.8, 0.75], ['50,90,210', 0.6, 0.2]];
     neb.forEach(([col, fx, fy], j) => { const px = (fx + (R(seed + j) - 0.5) * 0.3) * W, py = (fy + (R(seed * 3 + j) - 0.5) * 0.3) * H, r = W * 0.45;
       const gg = c.createRadialGradient(px, py, 0, px, py, r); gg.addColorStop(0, 'rgba(' + col + ',0.13)'); gg.addColorStop(1, 'rgba(' + col + ',0)'); c.fillStyle = gg; c.fillRect(0, 0, W, H); });
-    for (let j = 0; j < 260; j++) { const x = Math.floor(R(j * 1.3 + seed) * W), y = Math.floor(R(j * 2.7 + seed + 5) * H), b = R(j + 77);
+    for (let j = 0, N = Math.max(260, Math.round(W * H / 500)); j < N; j++) { const x = Math.floor(R(j * 1.3 + seed) * W), y = Math.floor(R(j * 2.7 + seed + 5) * H), b = R(j + 77);
       c.fillStyle = b > 0.93 ? '#ffffff' : b > 0.7 ? 'rgba(200,210,240,0.7)' : 'rgba(140,150,190,0.45)'; c.fillRect(x, y, 1, 1);
       if (b > 0.985) { c.fillStyle = 'rgba(200,210,240,0.5)'; c.fillRect(x - 1, y, 3, 1); c.fillRect(x, y - 1, 1, 3); } }
   }
@@ -152,10 +152,31 @@
     cv.width = cell; cv.height = cell; cv.style.width = cell * k + 'px'; cv.style.height = cell * k + 'px';
     const c = cv.getContext('2d'); c.clearRect(0, 0, cell, cell); c.drawImage(POSES, (f % 12) * cell, Math.floor(f / 12) * cell, cell, cell, 0, 0, cell, cell); }
 
+  // ---------- рваный край пластины пузыря Хэта: ступеньки по 2 px, сид — номер пузыря (как в Tools/pitch v3)
+  function ragPlates() {
+    document.querySelectorAll('.gbub .plate').forEach((plate, n) => {
+      let s = 1234567 + n * 7919;
+      const rnd = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+      const w = plate.offsetWidth, h = plate.offsetHeight, step = 14, amp = 5;
+      const side = (len) => { const a = []; for (let x = 0; x <= len; x += step) a.push([Math.min(x, len), Math.round(rnd() * amp / 2) * 2]); return a; };
+      const top = side(w), right = side(h), bot = side(w), left = side(h);
+      const poly = (k) => { const p = [];
+        top.forEach(([x, d]) => p.push([x, d + k])); right.forEach(([y, d]) => p.push([w - d - k, y]));
+        bot.slice().reverse().forEach(([x, d]) => p.push([x, h - d - k])); left.slice().reverse().forEach(([y, d]) => p.push([d + k, y]));
+        return 'polygon(' + p.map(([x, y]) => x + 'px ' + y + 'px').join(',') + ')'; };
+      plate.style.clipPath = poly(0);
+      const fill = plate.querySelector('.fill');
+      if (fill) fill.style.clipPath = poly(3).replace(/(-?\d+)px (-?\d+)px/g, (m, x, y) => (x - 3) + 'px ' + (y - 3) + 'px');
+    });
+  }
+  window.PX_PLATES = ragPlates;
+
   // ---------- СБОРКА
+  window.PX_SKY = drawSky;
   function start() {
     document.querySelectorAll('canvas.pxt').forEach(drawPxt);
     document.querySelectorAll('canvas.sky').forEach(drawSky);
+    ragPlates();
     document.querySelectorAll('canvas.dark').forEach(initDark);
     const hats = () => document.querySelectorAll('canvas.hat').forEach(drawHat);
     if (POSES.complete) hats(); else POSES.onload = hats;
