@@ -139,3 +139,8 @@ table.cmp td.v { font: 700 19px/1 'TT'; color: #fff; white-space: nowrap; }
   canvas.pxt { margin-left: 0 !important; margin-right: 0 !important; }
   .nums { gap: 14px 26px; }
 }
+
+/* первый раздел: рваный верхний край тьмы ложится на низ первого экрана — ровного среза пререндера не видно */
+.darkband.first { margin-top: 0; }
+.darkband.first canvas.band { top: -260px; height: calc(100% + 380px); z-index: 3; }
+.darkband.first > .wrap { z-index: 4; }
