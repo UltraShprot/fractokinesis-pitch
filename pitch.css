@@ -1,0 +1,142 @@
+/* Питч v4 — стиль карточек описания Steam: тьма с рваным карминовым краем, жирный пиксельный шрифт, кадры игры в пиксельных рамках. */
+@font-face { font-family: 'TT'; src: url('assets/TikTokSans_400.ttf'); font-weight: 400; }
+@font-face { font-family: 'TT'; src: url('assets/TikTokSans_700.ttf'); font-weight: 700; }
+:root { --k: 1; --g: #ffd84a; --r: #ff3b5c; --rim: #8e1a3a; --w: #e9edf5; --mut: #9aa3bd; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #030307; color: var(--w); font-family: 'TT', 'Segoe UI', sans-serif; }
+body { padding: 12px 0; }
+.frame { width: calc(1920px * var(--k)); height: calc(1080px * var(--k)); margin: 0 auto 12px; position: relative; overflow: hidden; }
+.slide { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform: scale(var(--k)); transform-origin: 0 0; overflow: hidden; background: #07070d; }
+body.only, body.print { padding: 0; }
+body.only .frame { margin: 0; --k: 1; }
+body.print .frame { margin: 0; --k: 1; page-break-after: always; break-after: page; }
+@page { size: 1920px 1080px; margin: 0; }
+
+.abs { position: absolute; }
+canvas.sky, canvas.dark { position: absolute; image-rendering: pixelated; }
+canvas.sky { left: 0; top: 0; width: 1920px; height: 1080px; z-index: 0; }
+canvas.dark { z-index: 3; pointer-events: none; }
+canvas.pxt, canvas.hat { image-rendering: pixelated; display: block; }
+.z { position: absolute; z-index: 5; }
+
+/* кадры игры: видео/картинка в пиксельной рамке (чёрный + кармин), без сглаживания */
+.shot { position: absolute; z-index: 2; background: #000 center/cover no-repeat; image-rendering: pixelated;
+  box-shadow: 0 0 0 4px #05060a, 0 0 0 8px var(--rim), 0 14px 40px rgba(0,0,0,.6); }
+.shot.bleed { box-shadow: none; }
+.shot video, .shot img { width: 100%; height: 100%; object-fit: cover; display: block; image-rendering: pixelated; }
+.shot .cap { position: absolute; left: 14px; bottom: 10px; z-index: 2; }
+.shot .tag { position: absolute; left: -8px; top: -8px; z-index: 2; }
+
+/* текст */
+.lead { font-size: 34px; line-height: 1.32; font-weight: 700; text-shadow: 0 3px 0 #000, 0 0 18px #000; }
+.lead b.g, .body b.g, .g { color: var(--g); } .lead b.r, .body b.r, .r { color: var(--r); }
+.body { font-size: 29px; line-height: 1.34; font-weight: 400; color: #e1e5f0; text-shadow: 0 2px 0 #000, 0 0 10px #000; }
+.body b { color: #fff; font-weight: 700; }
+.small { font-size: 22px; line-height: 1.35; color: #aeb5cc; }
+.small a { color: var(--mut); }
+
+/* пилюли: пиксельная плашка */
+.pills { display: flex; gap: 18px; flex-wrap: wrap; }
+.pill { font: 700 24px/1 'TT'; padding: 14px 20px 13px; background: #0c0d18; color: #fff; border: 3px solid #272b3a;
+  box-shadow: 0 0 0 3px #05060a, 4px 4px 0 3px var(--rim); }
+.pill b { color: var(--g); }
+
+/* кнопка Steam */
+a.steam { display: inline-flex; align-items: center; gap: 18px; text-decoration: none; color: #fff; font: 700 28px/1 'TT';
+  padding: 20px 28px; background: linear-gradient(#e0294d, #b5122f); border: 3px solid #ff6a84;
+  box-shadow: 0 0 0 4px #05060a, 6px 6px 0 4px #4a0a1a; }
+a.steam small { font: 400 23px/1 'TT'; opacity: .9; }
+
+/* пузырь Мистера Хэта */
+.bub { position: absolute; z-index: 6; background: #0b0c16; border: 4px solid #e9edf5; padding: 22px 28px 24px; font: 700 30px/1.3 'TT';
+  box-shadow: 0 0 0 4px #05060a, 8px 8px 0 4px var(--rim); }
+.bub .who { position: absolute; top: -22px; left: 18px; background: #e9edf5; color: #05060a; font: 700 18px/1 'TT'; letter-spacing: .12em;
+  padding: 7px 12px 6px; text-transform: uppercase; }
+.bub::after { content: ''; position: absolute; width: 0; height: 0; border: 18px solid transparent; }
+.bub.tail-bl::after { left: 54px; bottom: -40px; border-top-color: #e9edf5; border-left-color: #e9edf5; }
+.bub.tail-br::after { right: 54px; bottom: -40px; border-top-color: #e9edf5; border-right-color: #e9edf5; }
+.bub.tail-l::after { left: -40px; top: 40px; border-right-color: #e9edf5; border-bottom-color: #e9edf5; }
+.bub b.g { color: var(--g); } .bub b.r { color: var(--r); }
+
+/* числа */
+.nums { display: grid; grid-template-columns: 170px 250px 170px; gap: 30px 34px; }
+.num .n { margin-bottom: 4px; }
+.num .l { font: 700 26px/1.15 'TT'; color: #dfe3ee; text-transform: uppercase; letter-spacing: .06em; }
+
+/* шаги кор-лупа */
+.step .t { margin: 26px 0 10px; }
+
+/* сравнение */
+table.cmp { border-collapse: collapse; width: 100%; }
+table.cmp th { font: 700 20px/1 'TT'; letter-spacing: .14em; text-transform: uppercase; color: var(--mut); text-align: left; padding: 0 16px 14px; }
+table.cmp td { padding: 15px 16px; border-top: 2px solid #23263a; font: 400 24px/1.2 'TT'; color: #d6dbea; vertical-align: middle; }
+table.cmp td.nm { font: 700 27px/1.1 'TT'; color: #fff; }
+table.cmp td.nm small { display: block; font: 400 21px/1.3 'TT'; color: #aeb5cc; margin-top: 4px; }
+table.cmp td.v { font: 700 27px/1 'TT'; color: #fff; white-space: nowrap; }
+table.cmp tr.us td { background: rgba(212,24,61,.14); }
+table.cmp tr.us td.nm { color: var(--g); }
+
+/* план */
+.done { list-style: none; }
+.done li { font: 700 27px/1.25 'TT'; padding: 9px 0 9px 50px; position: relative; text-shadow: 0 2px 0 #000; }
+.done li small { display: block; font: 400 24px/1.3 'TT'; color: #b9c0d4; }
+.done li::before { content: ''; position: absolute; left: 0; top: 14px; width: 26px; height: 26px; background: var(--g);
+  box-shadow: 0 0 0 3px #05060a, 3px 3px 0 3px var(--rim);
+  clip-path: polygon(0 50%, 15% 35%, 40% 60%, 85% 10%, 100% 25%, 40% 90%); }
+.tl { display: flex; flex-direction: column; gap: 0; }
+.tl .row { display: grid; grid-template-columns: 190px 1fr; gap: 24px; padding: 22px 0; border-top: 2px dashed #3a3f5c; }
+.tl .row:first-child { border-top: none; }
+.tl .when { font: 700 24px/1.2 'TT'; color: var(--g); letter-spacing: .04em; }
+.tl .what { font: 700 26px/1.25 'TT'; color: #fff; }
+.tl .what small { display: block; font: 400 23px/1.3 'TT'; color: #b9c0d4; margin-top: 4px; }
+.tl .row.now .when { color: var(--r); }
+
+/* телефоны шортсов */
+.phones { display: flex; gap: 22px; }
+.phone { width: 210px; text-decoration: none; color: #fff; }
+.phone .scr { width: 210px; height: 373px; position: relative; overflow: hidden; background: #000;
+  box-shadow: 0 0 0 4px #05060a, 0 0 0 8px var(--rim), 0 12px 30px rgba(0,0,0,.6); }
+.phone .scr video, .phone .scr img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.phone .nm { font: 700 23px/1.2 'TT'; margin-top: 18px; text-shadow: 0 2px 0 #000; }
+
+/* контакты */
+.links { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 12px 60px; font: 400 30px/1.3 'TT'; color: #c9cfe0; padding-top: 20px; border-top: 3px solid var(--rim); }
+.links span { color: #aeb5cc; font-size: 19px; letter-spacing: .12em; text-transform: uppercase; display: block; }
+.links a { color: #fff; text-decoration: none; font-weight: 700; }
+.ask .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px; }
+.ask .it { background: rgba(10,6,20,.86); border: 3px solid #b3173f; padding: 18px 22px; box-shadow: 0 0 0 3px #05060a, 5px 5px 0 3px #4a0a1a; }
+.ask .it b { display: block; font: 700 25px/1.15 'TT'; color: #fff; margin-bottom: 6px; }
+.ask .it span { font: 400 23px/1.3 'TT'; color: #c3c7d9; }
+.pnum { display: none; position: absolute; right: 34px; bottom: 26px; z-index: 7; font: 700 18px/1 'TT'; color: #4a5070; letter-spacing: .12em; }
+.col { display: flex; flex-direction: column; align-items: flex-start; }
+.bub.tail-r::after { right: -40px; top: 40px; border-left-color: #e9edf5; border-bottom-color: #e9edf5; }
+table.cmp th.c, table.cmp td.c { text-align: center; }
+table.cmp td.v.us { font: 700 20px/1.2 'TT'; color: var(--g); white-space: normal; }
+.yes, .no { display: inline-block; width: 26px; height: 26px; }
+.yes { background: var(--g); box-shadow: 0 0 0 3px #05060a, 3px 3px 0 3px var(--rim); clip-path: polygon(0 50%, 15% 35%, 40% 60%, 85% 10%, 100% 25%, 40% 90%); }
+.no { width: 18px; height: 4px; background: #3a3f58; vertical-align: middle; }
+
+.facts { font: 700 27px/1.2 'TT'; color: #fff; text-shadow: 0 2px 0 #000; }
+.facts i { font-style: normal; color: var(--g); margin: 0 14px; }
+.left { list-style: none; }
+.left li { font: 700 26px/1.3 'TT'; padding: 5px 0 5px 34px; position: relative; color: #fff; }
+.left li::before { content: ''; position: absolute; left: 4px; top: 17px; width: 14px; height: 14px; background: var(--r); box-shadow: 0 0 0 3px #05060a; }
+table.cmp td.nm em { font: 700 15px/1 'TT'; font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: #05060a; background: var(--g); padding: 3px 7px; margin-left: 10px; vertical-align: 4px; }
+.phone { width: 236px; } .phone .scr { width: 236px; height: 420px; }
+
+/* анимированный логотип меню игры: лента 12 кадров 264×70, ×3 без сглаживания */
+.logoanim { width: 792px; height: 210px; background: url('assets/logo_anim.png') 0 0 / 792px 2520px no-repeat; image-rendering: pixelated; }
+
+/* кооп: шов между половинами экрана и метки игроков */
+.shot .seam { position: absolute; left: calc(50% - 4px); top: 0; bottom: 0; width: 8px; z-index: 2; background: #05060a; box-shadow: 0 0 0 3px var(--rim); }
+.shot .pl { position: absolute; top: 14px; z-index: 2; }
+.shot .pl.l { left: 18px; } .shot .pl.r { left: calc(50% + 22px); }
+.shot.img img { object-fit: cover; image-rendering: auto; }
+
+/* v6 (жюри): подписи кадров — сверху слева, чтобы не закрывать героев внизу */
+.shot .cap { bottom: auto; top: 12px; }
+.kick { font: 700 22px/1 'TT'; letter-spacing: .16em; text-transform: uppercase; color: #c3c7d9; margin-bottom: -10px; }
+.small { color: #c3c7d9; font-size: 23px; }
+.nums { grid-template-columns: repeat(3, 240px) !important; }
+
+.links { grid-template-columns: repeat(2, auto); }
