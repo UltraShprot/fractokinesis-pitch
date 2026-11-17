@@ -11,4 +11,9 @@
     if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
   }), { rootMargin: '200px 0px', threshold: 0.01 });
   document.querySelectorAll('video[data-src]').forEach((v) => io.observe(v));
+  // страховка: видео в кадре, вставшее само (экономия ресурсов браузера, недогруз), запускается снова
+  const seen = new Set();
+  const io2 = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? seen.add(e.target) : seen.delete(e.target))), { threshold: 0.01 });
+  document.querySelectorAll('video[data-src]').forEach((v) => { io2.observe(v); v.addEventListener('ended', () => { v.currentTime = 0; v.play().catch(() => {}); }); });
+  setInterval(() => seen.forEach((v) => { if (v.src && v.paused && !document.hidden) v.play().catch(() => {}); }), 1000);
 })();

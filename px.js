@@ -65,9 +65,37 @@
     const k = +cv.dataset.k || 4, W = Math.round(cv.offsetWidth / k), H = Math.round(cv.offsetHeight / k);
     cv.width = W; cv.height = H;
     DARK.push({ cv, c: cv.getContext('2d'), W, H, side: cv.dataset.side || 'right', at: +(cv.dataset.at || 0.5), seed: +(cv.dataset.seed || 1),
-      eyes: +(cv.dataset.eyes || 0), op: +(cv.dataset.op || 1) });
+      eyes: +(cv.dataset.eyes || 0), op: +(cv.dataset.op || 1), pad: +(cv.dataset.pad || 30) });
+  }
+  // полоса тьмы с рваными краями сверху и снизу (сайт): холст на весь раздел с запасом pad, края не срезаются, шва с фоном нет
+  function drawBand(d, T) {
+    const { c, W, H, seed } = d, pad = d.pad;
+    c.clearRect(0, 0, W, H);
+    const top = [], bot = [];
+    for (let i = -1; i <= W; i++) { top.push(Math.round(pad + ragW(i, T, seed))); bot.push(Math.round(H - pad - ragW(i, T, seed + 5))); }
+    const t = (i) => top[clamp(i, -1, W) + 1], b = (i) => bot[clamp(i, -1, W) + 1];
+    c.fillStyle = '#04050a';
+    for (let i = 0; i < W; i++) c.fillRect(i, t(i), 1, b(i) - t(i));
+    c.save(); c.beginPath(); for (let i = 0; i < W; i++) c.rect(i, t(i), 1, b(i) - t(i)); c.clip();
+    c.globalCompositeOperation = 'lighter';
+    const cols = ['212,24,61', '130,60,210', '50,90,210', '40,170,180', '212,24,61'];
+    for (let j = 0; j < 5; j++) {
+      const px = (0.5 + 0.45 * Math.sin(T * (0.21 + j * 0.05) + j * 1.7 + seed)) * W, py = (0.5 + 0.45 * Math.sin(T * (0.17 + j * 0.04) + j * 2.9 + seed * 2)) * H;
+      const r = Math.max(W, H) * 0.3, g = c.createRadialGradient(px, py, 0, px, py, r);
+      g.addColorStop(0, 'rgba(' + cols[j] + ',0.10)'); g.addColorStop(1, 'rgba(' + cols[j] + ',0)'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    }
+    c.globalCompositeOperation = 'source-over';
+    for (let j = 0; j < 90; j++) { const sx = R(j + seed * 17) * W, sy = pad + ((R(j * 3 + seed) * (H - 2 * pad) - T * (3 + R(j) * 6)) % (H - 2 * pad) + (H - 2 * pad)) % (H - 2 * pad);
+      c.fillStyle = R(j + 9) > 0.7 ? 'rgba(212,24,61,0.5)' : 'rgba(150,160,190,0.3)'; c.fillRect(Math.round(sx + Math.sin(T + j) * 2), Math.round(sy), 1, 1); }
+    c.restore();
+    for (let i = 0; i < W; i++) {
+      const ti = t(i), tm = Math.min(ti, t(i - 1), t(i + 1)), bi = b(i), bm = Math.max(bi, b(i - 1), b(i + 1)), red = n1(i / 5, seed + 7) > 0.5 ? '#d4183d' : '#6e1229';
+      c.fillStyle = '#272b3a'; c.fillRect(i, tm, 1, ti + 3 - tm); c.fillRect(i, bi - 3, 1, bm - bi + 3);
+      c.fillStyle = red; c.fillRect(i, tm, 1, ti + 1 - tm); c.fillRect(i, bi - 1, 1, bm - bi + 1);
+    }
   }
   function drawDark(d, T) {
+    if (d.side === 'band') return drawBand(d, T);
     const { c, W, H, side, at, seed } = d, vert = side === 'right' || side === 'left', L = vert ? H : W, S = vert ? W : H;
     const x0 = Math.round(S * at), dir = side === 'right' || side === 'bottom' ? 1 : -1;
     c.clearRect(0, 0, W, H);
@@ -132,6 +160,8 @@
     const hats = () => document.querySelectorAll('canvas.hat').forEach(drawHat);
     if (POSES.complete) hats(); else POSES.onload = hats;
     DARK.forEach((d) => drawDark(d, 0));
+    let rt = 0; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => DARK.forEach((d) => {
+      const k = +d.cv.dataset.k || 4; d.W = d.cv.width = Math.round(d.cv.offsetWidth / k); d.H = d.cv.height = Math.round(d.cv.offsetHeight / k); drawDark(d, performance.now() / 1000); }), 150); });
     document.body.classList.add('ready');
     if (STILL) return;
     // логотип меню: 9 к/с, как в игре
